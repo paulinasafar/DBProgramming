@@ -28,7 +28,7 @@ public class DBHelperPlayer {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        System.out.println(rowCount);
+        System.out.println("No of new rows in Player: " + rowCount);
         return rowCount;
     }
 
@@ -133,6 +133,24 @@ public class DBHelperPlayer {
             if (affectedRows == 1) System.out.println("Data for Game with id " + p.getPlayerId() + " succesfully updated.");
 
         }
+    }
+
+    public int getLastInsertRowIDP() {
+        int lastId = 0;
+        String query = "SELECT MAX(PlayerId), PlayerName FROM Player;";
+
+        try (Statement stmt = db.connect(url).createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                lastId = rs.getInt("MAX(PlayerId)");
+                System.out.println("Last ID in the table Player is: " + lastId + " " + rs.getString("PlayerName"));
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return  lastId;
     }
 
 

@@ -2,6 +2,7 @@ package com.paulina;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DBHelperGame {
 
@@ -26,7 +27,7 @@ public class DBHelperGame {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        System.out.println(rowCount);
+        System.out.println("No of new rows in Game: " + rowCount);
         return rowCount;
     }
 
@@ -151,40 +152,67 @@ public class DBHelperGame {
         return rowCount;
     }
 
-    public Game getGameByID(int gameID) {
+    public Game getGameByID(int gameId) {
         Game g = new Game();
 
         String query = "SELECT * FROM Game WHERE GameId = ? ";
         try (PreparedStatement stmt = db.connect(url).prepareStatement(query)) {
-            stmt.setInt(1, gameID);
+            stmt.setInt(1, gameId);
             ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                String game = rs.getString("GameName") + " MaxLevel: " + rs.getInt("MaxLevel");
-                System.out.println(game);
-            }
+                    g.setGameId(gameId);
+                    g.setGameName(rs.getString("GameName"));
+                    g.setGameType(rs.getString("GameType"));
+                    g.setMaxLevel(rs.getInt("MaxLevel"));
+//            while (rs.next()) {
+//                String game = rs.getString("GameName") + " MaxLevel: " + rs.getInt("MaxLevel");
+//                System.out.println(game);
+//            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return g;
     }
 
-   public int getLastInsertRowID() {
+   public int getLastInsertRowIDG() {
         int lastId = 0;
-        String query = "SELECT MAX(GameId) FROM Game;";
+        String query = "SELECT MAX(GameId), GameName FROM Game;";
 
         try (Statement stmt = db.connect(url).createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()) {
                 lastId = rs.getInt("MAX(GameId)");
-                System.out.println("Last ID in the table is: " + lastId);
+                System.out.println("Last ID in the table Game is: " + lastId + " " + rs.getString("GameName"));
             }
 
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         return  lastId;
+    }
+
+    public List<Game> getAllGamesInArray() {
+        List<Game> games = new ArrayList<Game>();
+        String query = "SELECT * FROM Game;";
+
+        try (PreparedStatement stmt = db.connect(url).prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int gameId = rs.getInt("GameId");
+                Game g = getGameByID(gameId);
+                games.add(g);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            System.out.println("Games saved in the list.");
+        }
+        for (Game g : games) {
+            System.out.println(g);
+        }
+        return games;
     }
 
 

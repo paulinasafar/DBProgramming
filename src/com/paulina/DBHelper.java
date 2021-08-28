@@ -12,8 +12,6 @@ public class DBHelper {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(url);
-
-            System.out.println("Connection to SQLite has been established.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -77,6 +75,41 @@ public class DBHelper {
         System.out.println("Number of Players entered: " + rowCount);
     }
 
+    public void createTableFavGames(String url) {
+        int rowCount = 0;
+        String sql = "CREATE TABLE IF NOT EXISTS FavGames (\n"
+                + "	FavGamesId INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+                + "	PlayerId INTEGER NOT NULL,\n"
+                + "	GameID INTEGER NOT NULL,\n"
+                + "	PlayDate DATE, \n"
+                + "	FOREIGN KEY(PlayerId) REFERENCES Player(PlayerId), \n"
+                + "	FOREIGN KEY(GameId) REFERENCES Game(GameId) \n"
+                + ");";
+
+        try (Statement stmt = connect(url).createStatement()) {
+            stmt.execute(sql);
+
+            String insStatement = "INSERT INTO FavGames (PlayerId, GameId, PlayDate)";
+            insStatement = insStatement + " VALUES(6, 3, '2021-02-14'),\n"
+                    + " (1, 7, '2020-12-8'),\n"
+                    + " (2, 4, '2021-01-28'),\n"
+                    + " (3, 3, '2021-06-04'),\n"
+                    + " (5, 2, '2021-04-20'),\n"
+                    + " (6, 1, '2021-07-28'),\n"
+                    + " (3, 8, '2021-08-15'),\n"
+                    + " (1, 5, '2021-08-15'),\n"
+                    + " (2, 8, '2021-08-15'),\n"
+                    + " (5, 26, '2021-08-15'),\n"
+                    + " (4, 25, '2021-05-08');";
+
+            rowCount = stmt.executeUpdate(insStatement);
+            connect(url).close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Number of Favorite Games entered: " + rowCount);
+    }
+
     public void createNewTable(String url, String filename, String att1, String att2, String att3) {
 
         String sql = "CREATE TABLE IF NOT EXISTS " + filename + " (\n"
@@ -94,6 +127,24 @@ public class DBHelper {
         }
     }
 
+    public void deleteTable(String url, String tableName) {
+
+//        PRAGMA foreign_keys = OFF;
+//        DROP TABLE addresses;
+//        UPDATE people
+//        SET address_id = NULL;
+//        PRAGMA foreign_keys = ON;
+
+        String sql = "DROP TABLE " + tableName + ";\n";
+
+        try (Statement stmt = connect(url).createStatement()) {
+            stmt.executeUpdate(sql);
+
+            System.out.println("Deleted table " + tableName);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
 
 }
